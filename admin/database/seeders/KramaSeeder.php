@@ -11,7 +11,7 @@ class KramaSeeder extends Seeder
     {
         DB::table('kramas')->insert([
             [
-                'krama_id' => 'KR004',
+                'krama_id' => 'KR007',
                 'nik' => '3201123456789004',
                 'nama' => 'I Wayan Duka',
                 'gender' => 'L',
