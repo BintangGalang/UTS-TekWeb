@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from "react";
 import toast from "react-hot-toast";
-import { FaSearch, FaPlus, FaCheckCircle } from "react-icons/fa";
+import { FaSearch, FaPlus, FaCheckCircle, FaSignOutAlt } from "react-icons/fa";
+import Swal from "sweetalert2"; // ⬅️ Tambahkan SweetAlert2
+import "sweetalert2/dist/sweetalert2.min.css";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminPage() {
+  const navigate = useNavigate();
   const [nik, setNik] = useState("");
   const [krama, setKrama] = useState(null);
   const [iuran, setIuran] = useState("");
@@ -83,8 +87,43 @@ export default function AdminPage() {
     }
   };
 
+  // 🚪 Logout dengan SweetAlert2
+  const handleLogout = () => {
+    Swal.fire({
+      title: "Konfirmasi Logout",
+      text: "Apakah Anda yakin ingin keluar dari halaman admin?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Ya, Logout",
+      cancelButtonText: "Batal",
+      reverseButtons: true,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          icon: "success",
+          title: "Logout Berhasil",
+          text: "Anda telah keluar dari sistem.",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+        setTimeout(() => navigate("/login"), 1200);
+      }
+    });
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-6">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-6 relative">
+      {/* 🚪 Tombol Logout */}
+      <button
+        onClick={handleLogout}
+        className="absolute top-6 right-6 bg-red-600 text-white rounded-full p-3 shadow-md hover:bg-red-700 transition-all flex items-center justify-center"
+        title="Logout"
+      >
+        <FaSignOutAlt size={20} />
+      </button>
+
       <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-lg p-6">
         <h1 className="text-2xl font-bold text-blue-700 mb-6">
           🧾 Admin Page - Buat & Kelola Tagihan
@@ -110,9 +149,15 @@ export default function AdminPage() {
         {/* 🔹 Info Krama */}
         {krama && (
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-            <p><b>Nama:</b> {krama.nama}</p>
-            <p><b>NIK:</b> {krama.nik}</p>
-            <p><b>Status:</b> {krama.status}</p>
+            <p>
+              <b>Nama:</b> {krama.nama}
+            </p>
+            <p>
+              <b>NIK:</b> {krama.nik}
+            </p>
+            <p>
+              <b>Status:</b> {krama.status}
+            </p>
           </div>
         )}
 
@@ -176,12 +221,18 @@ export default function AdminPage() {
                     <td className="border p-2">{index + 1}</td>
                     <td className="border p-2">{t.krama_id}</td>
                     <td className="border p-2">{t.iuran}</td>
-                    <td className="border p-2">Rp {Number(t.dedosan).toLocaleString("id-ID")}</td>
-                    <td className="border p-2">Rp {Number(t.peturunan).toLocaleString("id-ID")}</td>
+                    <td className="border p-2">
+                      Rp {Number(t.dedosan).toLocaleString("id-ID")}
+                    </td>
+                    <td className="border p-2">
+                      Rp {Number(t.peturunan).toLocaleString("id-ID")}
+                    </td>
                     <td className="border p-2">{t.tgl}</td>
                     <td
                       className={`border p-2 font-semibold ${
-                        t.status === "Lunas" ? "text-green-600" : "text-orange-500"
+                        t.status === "Lunas"
+                          ? "text-green-600"
+                          : "text-orange-500"
                       }`}
                     >
                       {t.status === "Lunas" ? (

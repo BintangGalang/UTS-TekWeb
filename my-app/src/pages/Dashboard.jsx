@@ -3,7 +3,9 @@ import { useBilling } from "../utils/BillingContext";
 import { useCart } from "../utils/CartContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
-import { FaShoppingCart } from "react-icons/fa";
+import { FaShoppingCart, FaSignOutAlt } from "react-icons/fa";
+import Swal from "sweetalert2"; // ⬅️ Ganti iziToast ke SweetAlert2
+import "sweetalert2/dist/sweetalert2.min.css";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -16,14 +18,12 @@ export default function Dashboard() {
   const [tagihan, setTagihan] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // 🔄 Jika dari halaman checkout kembali ke dashboard, refresh data otomatis
   React.useEffect(() => {
     if (location.state?.refresh && krama) {
       handleCariNik();
     }
   }, [location.state]);
 
-  // 🔍 Cari Krama berdasarkan NIK
   const handleCariNik = async () => {
     if (!nik.trim()) {
       toast.error("Masukkan NIK terlebih dahulu!");
@@ -45,8 +45,6 @@ export default function Dashboard() {
       setKrama(data);
 
       const tagihanData = await getTagihanByKrama(data.krama_id);
-
-      // 🔹 Filter hanya tagihan dengan status !== "Lunas"
       const belumLunas = tagihanData.filter(
         (t) => t.status?.toLowerCase() !== "lunas"
       );
@@ -71,7 +69,6 @@ export default function Dashboard() {
     setTagihan([]);
   };
 
-  // 🛒 Tambahkan tagihan ke cart
   const handleAddToCart = (t) => {
     const total = Number(t.dedosan) + Number(t.peturunan);
     addToCart({
@@ -83,9 +80,44 @@ export default function Dashboard() {
     toast.success(`"${t.iuran}" ditambahkan ke keranjang!`);
   };
 
+  // 🚪 Logout dengan SweetAlert2
+  const handleLogout = () => {
+    Swal.fire({
+      title: "Konfirmasi Logout",
+      text: "Apakah Anda yakin ingin keluar?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Ya, Logout",
+      cancelButtonText: "Batal",
+      reverseButtons: true,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          icon: "success",
+          title: "Logout Berhasil",
+          text: "Anda telah keluar dari sistem.",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+        setTimeout(() => navigate("/login"), 1200);
+      }
+    });
+  };
+
   return (
     <div className="p-6 min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100">
       <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-2xl p-6 relative">
+        {/* 🚪 Tombol Logout */}
+        <button
+          onClick={handleLogout}
+          className="absolute top-4 left-4 bg-red-600 text-white rounded-full p-3 shadow-md hover:bg-red-700 transition-all flex items-center justify-center"
+          title="Logout"
+        >
+          <FaSignOutAlt size={20} />
+        </button>
+
         {/* 🛒 Tombol Cart */}
         <button
           onClick={() => navigate("/cart")}
@@ -104,7 +136,7 @@ export default function Dashboard() {
           🔍 Cari Data Krama Berdasarkan NIK
         </h2>
 
-        {/* Input Pencarian */}
+        {/* Input NIK */}
         <div className="flex flex-col sm:flex-row gap-3 mb-6">
           <input
             type="text"
@@ -153,7 +185,7 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Tagihan dari Database */}
+        {/* Tagihan dari Sistem */}
         {tagihan.length > 0 && (
           <div className="overflow-x-auto mt-10">
             <h3 className="text-lg font-semibold text-green-700 mb-3">
@@ -210,7 +242,6 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Pesan Jika Tidak Ada Tagihan */}
         {krama && tagihan.length === 0 && (
           <p className="text-center text-gray-500 mt-6">
             ✅ Semua tagihan untuk krama ini sudah lunas.
