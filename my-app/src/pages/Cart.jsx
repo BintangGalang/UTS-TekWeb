@@ -11,7 +11,7 @@ export default function Cart() {
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
         <h2 className="text-2xl font-semibold text-gray-700 mb-4">🛒 Keranjang Kosong</h2>
         <button
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/dashboard")}
           className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-md transition-all"
         >
           Kembali ke Dashboard
